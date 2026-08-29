@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Photo Inbox",
+    "slug": "photo-inbox",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "photoinbox",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.photoinbox",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Photo Inbox 需要读取照片，用于本地整理、分类和搜索。"
+      }
+    },
+    "android": {
+      "package": "com.example.photoinbox",
+      "permissions": [
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "允许 Photo Inbox 访问照片，用于本地整理、分类和搜索。",
+          "savePhotosPermission": false,
+          "isAccessMediaLocationEnabled": false,
+          "granularPermissions": ["photo"]
+        }
+      ],
+      "expo-sqlite"
+    ]
+  }
+}
