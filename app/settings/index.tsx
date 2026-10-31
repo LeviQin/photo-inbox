@@ -1,23 +1,38 @@
-import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { TopBar } from '@/components/TopBar';
-import { SectionTitle } from '@/components/SectionTitle';
+import { GlassSurface } from '@/components/GlassSurface';
 import { useAppTheme, typography } from '@/constants/theme';
-import { getAppSettings, setAppSetting, type AppSettingKey } from '@/db/database';
 import { useAppStore } from '@/store/useAppStore';
+import type { ReviewTarget, SimilarityLevel } from '@/types/photo';
 
-export default function SettingsScreen() {
+export default function PreferencesScreen() {
   const theme = useAppTheme();
-  const reset = useAppStore((state) => state.reset);
-  const [settings, setSettings] = useState({ localAI: true, autoClassify: true, searchIndex: true });
-  useEffect(() => { void getAppSettings().then(setSettings); }, []);
-  const updateSetting = (key: AppSettingKey) => (value: boolean) => { setSettings((current) => ({ ...current, [key]: value })); void setAppSetting(key, value).catch(() => { setSettings((current) => ({ ...current, [key]: !value })); Alert.alert('设置保存失败', '请稍后重试。'); }); };
-  const resetData = () => Alert.alert('清空应用索引？', '只清空 Photo Inbox 自己的索引，不会删除系统照片。', [{ text: '取消', style: 'cancel' }, { text: '清空', style: 'destructive', onPress: () => void reset() }]);
-  return <Screen><TopBar title="设置与隐私" subtitle="本地处理与索引选项" back /><SectionTitle title="智能功能" /><Setting title="本地分析" desc="启发式分类与评分，下次扫描生效" value={settings.localAI} onValueChange={updateSetting('localAI')} theme={theme} /><Setting title="自动分类" desc="扫描时生成截图、文档等分类" value={settings.autoClassify} onValueChange={updateSetting('autoClassify')} theme={theme} /><Setting title="搜索索引" desc="保存本地关键词用于快速查找" value={settings.searchIndex} onValueChange={updateSetting('searchIndex')} theme={theme} /><SectionTitle title="隐私与关于" /><View style={[styles.privacy, { backgroundColor: theme.surface, borderColor: theme.border }]}><Text style={[styles.privacyTitle, { color: theme.text }]}>照片属于你</Text><Text style={[styles.privacyText, { color: theme.muted }]}>照片默认只在设备本地处理，Photo Inbox 不包含云端上传逻辑。</Text></View><View style={[styles.version, { backgroundColor: theme.surface, borderColor: theme.border }]}><Text style={[styles.versionTitle, { color: theme.text }]}>版本</Text><Text style={[styles.versionText, { color: theme.muted }]}>1.0.0 · Expo SDK 57 · SQLite 本地索引</Text></View><Text accessibilityRole="button" onPress={resetData} style={[styles.reset, { color: theme.danger }]}>清空应用索引（不会删除系统照片）</Text></Screen>;
+  const preferences = useAppStore((state) => state.reviewPreferences);
+  const setDailyTarget = useAppStore((state) => state.setDailyTarget);
+  const setSimilarity = useAppStore((state) => state.setSimilarity);
+  return <Screen header={<TopBar title="整理偏好" subtitle="每日目标与相似照片" back />}>
+    <GlassSurface intensity={30} style={[styles.card, { borderColor: theme.border }]}>
+      <Text style={[styles.title, { color: theme.text }]}>每日目标</Text>
+      <Text style={[styles.desc, { color: theme.muted }]}>新建整理会话时使用，当前会话不会被截断。</Text>
+      <View style={styles.optionRow}>{([10, 20, 30, 50] as ReviewTarget[]).map((target) => <Option key={target} label={`${target}`} selected={preferences.dailyTarget === target} onPress={() => void setDailyTarget(target)} theme={theme} />)}</View>
+      <View style={[styles.divider, { backgroundColor: theme.border }]} />
+      <Text style={[styles.title, { color: theme.text }]}>相似照片灵敏度</Text>
+      <Text style={[styles.desc, { color: theme.muted }]}>严格更少误报，宽松更容易找到同一场景。</Text>
+      <View style={styles.optionRow}>{([{ value: 'strict', label: '严格' }, { value: 'balanced', label: '均衡' }, { value: 'loose', label: '宽松' }] as Array<{ value: SimilarityLevel; label: string }>).map((item) => <Option key={item.value} label={item.label} selected={preferences.similarityLevel === item.value} onPress={() => void setSimilarity(item.value)} theme={theme} />)}</View>
+    </GlassSurface>
+  </Screen>;
 }
 
-function Setting({ title, desc, value, onValueChange, theme }: { title: string; desc: string; value: boolean; onValueChange: (value: boolean) => void; theme: ReturnType<typeof useAppTheme> }) { return <View style={[styles.setting, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}><View style={{ flex: 1 }}><Text style={[styles.title, { color: theme.text }]}>{title}</Text><Text style={[styles.desc, { color: theme.muted }]}>{desc}</Text></View><Switch accessibilityLabel={title} value={value} onValueChange={onValueChange} trackColor={{ false: theme.fillSecondary, true: theme.primarySoft }} thumbColor={value ? theme.primary : theme.tertiary} /></View>; }
+function Option({ label, selected, onPress, theme }: { label: string; selected: boolean; onPress: () => void; theme: ReturnType<typeof useAppTheme> }) {
+  return <Pressable accessibilityRole="button" accessibilityState={{ selected }} onPress={onPress} style={[styles.option, { borderColor: selected ? theme.primary : theme.border, backgroundColor: selected ? theme.primarySoft : 'transparent' }]}><Text style={[styles.optionText, { color: selected ? theme.primary : theme.text }]}>{label}</Text></Pressable>;
+}
 
-const styles = StyleSheet.create({ setting: { minHeight: 68, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, borderBottomWidth: StyleSheet.hairlineWidth }, title: { ...typography.callout }, desc: { ...typography.footnote, marginTop: 3 }, privacy: { padding: 16, borderWidth: StyleSheet.hairlineWidth }, privacyTitle: { ...typography.callout }, privacyText: { ...typography.footnote, marginTop: 5 }, version: { marginTop: 10, padding: 16, borderWidth: StyleSheet.hairlineWidth }, versionTitle: { ...typography.callout }, versionText: { ...typography.footnote, marginTop: 5 }, reset: { minHeight: 44, textAlign: 'center', textAlignVertical: 'center', ...typography.footnote, fontWeight: '600' }
+const styles = StyleSheet.create({
+  card: { marginTop: 8, padding: 15, borderRadius: 18, borderWidth: StyleSheet.hairlineWidth },
+  optionRow: { flexDirection: 'row', gap: 7, marginTop: 12 },
+  option: { flex: 1, minHeight: 44, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
+  optionText: { ...typography.footnote, fontWeight: '700' },
+  divider: { height: StyleSheet.hairlineWidth, marginVertical: 16 },
+  title: { ...typography.callout }, desc: { ...typography.footnote, marginTop: 4 }
 });

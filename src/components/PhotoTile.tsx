@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/constants/theme';
+import { GeneratedIcon } from '@/components/GeneratedIcon';
 import type { PhotoRecord } from '@/types/photo';
 import { formatDate } from '@/utils/format';
 
@@ -18,12 +18,12 @@ export function PhotoTile({ photo, size, onPress, selected }: {
       <Image source={{ uri: photo.uri }} style={StyleSheet.absoluteFill} contentFit="cover" transition={120} cachePolicy="memory-disk" recyclingKey={photo.id} />
       {photo.favorite ? (
         <View style={styles.favorite}>
-          <Ionicons name="heart" size={13} color="#fff" />
+          <GeneratedIcon name="heart" size={13} />
         </View>
       ) : null}
       {selected ? (
         <View style={styles.selected}>
-          <Ionicons name="checkmark-circle" size={26} color={theme.primary} />
+          <GeneratedIcon name="check" size={26} />
         </View>
       ) : null}
       {photo.id.startsWith('demo-') ? (

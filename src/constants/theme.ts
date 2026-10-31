@@ -1,39 +1,53 @@
 import { useColorScheme } from 'react-native';
 
 export const lightColors = {
-  background: '#F2F2F7',
-  surface: '#FFFFFF',
+  background: '#F6F3ED',
+  backgroundTop: '#F6F3ED',
+  backgroundBottom: '#F6F3ED',
+  surface: '#FFFEFC',
   elevated: '#FFFFFF',
-  fillSecondary: '#E9E9EF',
-  text: '#111111',
-  muted: '#6E6E73',
-  tertiary: '#8E8E93',
-  border: 'rgba(60, 60, 67, 0.18)',
-  primary: '#5856D6',
-  primarySoft: '#EFEEFF',
-  success: '#248A3D',
-  warning: '#B25000',
+  fillSecondary: '#ECE8E0',
+  text: '#292723',
+  muted: '#77736C',
+  tertiary: '#99948B',
+  border: 'rgba(52, 46, 38, 0.11)',
+  primary: '#B94E31',
+  primarySoft: '#F8E9E2',
+  success: '#34835A',
+  warning: '#A5672F',
   danger: '#D70015',
   overlay: 'rgba(0, 0, 0, 0.38)',
-  dark: '#1C1C1E'
+  dark: '#292723',
+  glass: 'rgba(255, 255, 255, 0.78)',
+  glassStrong: 'rgba(255, 255, 255, 0.92)',
+  glassBorder: 'rgba(52, 46, 38, 0.12)',
+  glassShadow: 'rgba(62, 47, 35, 0.14)',
+  isDark: false
 } as const;
 
 export const darkColors = {
-  background: '#000000',
+  background: '#08080B',
+  backgroundTop: '#08080B',
+  backgroundBottom: '#08080B',
   surface: '#1C1C1E',
   elevated: '#2C2C2E',
   fillSecondary: '#2C2C2E',
   text: '#F5F5F7',
   muted: '#AEAEB2',
   tertiary: '#8E8E93',
-  border: 'rgba(84, 84, 88, 0.65)',
-  primary: '#5E5CE6',
-  primarySoft: '#2A2748',
+  border: 'rgba(108, 108, 116, 0.42)',
+  primary: '#FF8A68',
+  primarySoft: '#3A251F',
   success: '#30D158',
   warning: '#FF9F0A',
   danger: '#FF453A',
   overlay: 'rgba(0, 0, 0, 0.52)',
-  dark: '#2C2C2E'
+  dark: '#2C2C2E',
+  glass: 'rgba(28, 28, 30, 0.82)',
+  glassStrong: 'rgba(44, 44, 46, 0.94)',
+  glassBorder: 'rgba(255, 255, 255, 0.12)',
+  glassShadow: 'rgba(0, 0, 0, 0.48)',
+  isDark: true
 } as const;
 
 export type AppColors = typeof lightColors;
@@ -65,9 +79,9 @@ export const radius = {
 export const typography = {
   largeTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700' as const },
   title1: { fontSize: 28, lineHeight: 34, fontWeight: '700' as const },
-  title2: { fontSize: 22, lineHeight: 28, fontWeight: '700' as const },
+  title2: { fontSize: 20, lineHeight: 25, fontWeight: '600' as const },
   headline: { fontSize: 17, lineHeight: 22, fontWeight: '600' as const },
-  body: { fontSize: 17, lineHeight: 24, fontWeight: '400' as const },
+  body: { fontSize: 16, lineHeight: 23, fontWeight: '400' as const },
   callout: { fontSize: 16, lineHeight: 21, fontWeight: '600' as const },
   subheadline: { fontSize: 15, lineHeight: 20, fontWeight: '400' as const },
   footnote: { fontSize: 13, lineHeight: 18, fontWeight: '400' as const },

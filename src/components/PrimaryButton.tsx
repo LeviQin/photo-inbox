@@ -22,6 +22,6 @@ export function PrimaryButton({ label, onPress, loading = false, secondary = fal
 }
 
 const styles = StyleSheet.create({
-  button: { minHeight: 52, paddingHorizontal: 18, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  button: { minHeight: 48, paddingHorizontal: 18, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   label: { ...typography.callout }
 });

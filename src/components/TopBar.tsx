@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAppTheme, typography } from '@/constants/theme';
+import { GeneratedIcon } from '@/components/GeneratedIcon';
 
 export function TopBar({ title, subtitle, back = false, right }: {
   title: string;
@@ -17,7 +17,7 @@ export function TopBar({ title, subtitle, back = false, right }: {
       <View style={styles.row}>
         {back ? (
           <Pressable accessibilityRole="button" accessibilityLabel="返回" onPress={() => router.back()} style={styles.back}>
-            <Ionicons name="chevron-back" size={24} color={theme.text} />
+            <GeneratedIcon name="back" size={24} />
           </Pressable>
         ) : null}
         <View style={styles.titleWrap}>
@@ -31,10 +31,10 @@ export function TopBar({ title, subtitle, back = false, right }: {
 }
 
 const styles = StyleSheet.create({
-  wrap: { paddingTop: 6, paddingBottom: 18 },
+  wrap: { paddingTop: 4, paddingBottom: 12, paddingHorizontal: 20 },
   row: { flexDirection: 'row', alignItems: 'center' },
   back: { width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-start' },
   titleWrap: { flex: 1 },
-  title: { ...typography.largeTitle, letterSpacing: -0.6 },
-  subtitle: { marginTop: 4, ...typography.footnote }
+  title: { fontSize: 28, lineHeight: 34, fontWeight: '700', letterSpacing: -0.55 },
+  subtitle: { marginTop: 2, ...typography.footnote }
 });

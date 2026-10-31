@@ -16,7 +16,7 @@ export function SectionTitle({ title, action, onAction }: { title: string; actio
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 28, marginBottom: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12 },
   title: { ...typography.title2 },
   actionButton: { minHeight: 44, justifyContent: 'center' },
   action: { ...typography.footnote, fontWeight: '600' }

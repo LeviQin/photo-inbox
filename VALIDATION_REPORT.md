@@ -1,35 +1,60 @@
-# Validation Report
+# 图序 V1.3.1 验证报告
 
-Date: 2026-08-29
+日期：2026-10-14 至 2026-10-15。验证范围为图库变化同步、组合搜索、索引清空竞态与候选读取成本；SQLite schema 保持 v7。
 
-## Passed
+## 自动检查
 
-- package.json JSON parse
-- app.json JSON parse
-- eas.json JSON parse
-- tsconfig.json JSON parse
-- Required project files check
-- Internal `@/` import target check: 0 broken imports
-- TypeScript syntax scan: 0 syntax diagnostics
-- Review queue state bug fixed: session uses a stable 50-photo snapshot
-- Destructive flow uses two-stage deletion
+- `npm run typecheck`、`npm run validate`：通过。
+- 单元与 SQLite 集成回归：63 / 63 项通过，新增 21 项。
+- Expo Doctor：21 / 21 项通过。
+- Web 导出：通过；未将 Web 当作本机识字或相册权限的验证环境。
+- 回归测试覆盖真实 SQLite 的组合查询、字面通配符、AI 扩展筛选限制，以及模拟原生事件的合并、失败恢复、扫描中变化和清空竞态。
+- PowerShell 构建脚本语法检查：通过。
 
-## Environment limitation
+## 桌面数据库基准
 
-The build container could not reach the npm registry reliably, so `npm install`, `expo-doctor`, Android Gradle build and iOS build were not executed here.
+运行 `npm run benchmark` 可复测。环境为 Windows、Node 22.18.0、内存 SQLite；每组组合搜索 20 次，结果页最多 120 条。数据包含 20% 截图及较长 OCR 文本，相似候选为刻意偏密集的样本。
 
-After download, run:
+| 索引数量 | 搜索 P95 | 候选读取 | JS 分组 | 分组数量 |
+| --- | --- | --- | --- | --- |
+| 1,000 | 5.54 ms | 6.37 ms | 3.69 ms | 68 |
+| 10,000 | 20.27 ms | 60.95 ms | 19.20 ms | 675 |
+| 50,000 | 83.83 ms | 337.49 ms | 79.02 ms | 3,375 |
 
-```bash
-npm install
-npx expo install --fix
-npm run validate
-npm run typecheck
-npm run doctor
-```
+去掉候选查询中的 OCR 全文、搜索文本与 AI 描述前，50,000 条候选读取为 625.10 ms；优化后分组数量保持一致。测试期间另有构建负载，耗时会波动。进程峰值内存包含 SQLite、FTS 数据与 Node 运行时，不能视作手机内存指标；相似页一次读取全部候选的限制仍需下一轮处理。
 
-Then validate media permission and permanent deletion on a physical device.
+## Android 回归
 
-## Scope note
+使用隔离的 Android 36 Google APIs x86_64 模拟器和三张人工生成的测试图片，未操作真实照片或配置云端 AI。
 
-V1.0.0 contains a runnable local-first product implementation, but the visual AI layer deliberately uses heuristics so that the repository does not depend on large model binaries. See `docs/KNOWN_LIMITATIONS.md` and `docs/AI_INTEGRATION.md`.
+升级前 V1.3.0 已验证首次扫描、本机中文/英文 OCR 和收藏，并记录保留状态。旧版“最近3天截图订单号”会返回订单截图与无订单文字的会议截图，作为新版修复的对照。
+
+V1.3.1 Release 构建与完整 lint 检查通过，APK v2 签名验证通过，安装升级后确认版本名 1.3.1、versionCode 8。使用内部测试 debug 签名。
+
+最终安装包：`D:\Levi-Code\output\图序-v1.3.1-release.apk`，163,047,578 字节。
+
+SHA-256：`AB4233539CE51E1FB34194DECBE4B0473DBB82C9BAA360D6853E1D92A2AEB469`。
+
+模拟器回归结果：
+
+- 收藏和保留状态、已有 OCR 在升级与自动扫描后保持正确。
+- 同一组合搜索仅返回含订单号的截图，并显示“图片文字”命中片段。
+- 前台添加第四张图片后自动入库；视觉与 OCR 任务均完成，真实大小均已读取，队列归零。
+- 将第四张图片改为会议内容后，自动替换 OCR、指纹和真实大小；详情显示新画面，旧订单文字不再命中。
+- 从系统媒体库删除第四张人工样本后，索引自动移除该项，其余收藏和保留状态不变。
+- 移入回收站需要应用确认；永久删除还会弹出系统确认。取消系统授权后成功删除 0 张，照片和回收站记录都保留，并可恢复到图库。
+- 最终安装包中，已实测照片的回收站标题与删除确认均显示“真实大小”，取消应用删除确认后仍可恢复。
+
+原生分类的手工状态保留通过真实 SQLite 回归验证；本轮未调用云端分类接口。
+
+## 构建问题与处理
+
+1. 旧 CMake 缓存指向另一运行账户的 Gradle 目录：清理项目内受影响的原生缓存，改用当前账户缓存重建。
+2. Release lint 报 `OutOfMemoryError: Metaspace`：构建脚本改为 3 GB 堆、1.5 GB Metaspace、最多两个 Worker，保留完整 lint 检查后重试。
+3. OCR 与视觉分析并发开启事务导致队列停滞：用测试复现 `cannot start a transaction within a transaction`，数据库层串行提交事务后，模拟器队列正常完成。
+4. 编辑照片后，旧视觉结果或旧 OCR 失败可能覆盖新任务：完成分析前核对修改时间，过期结果保持新任务可重试。
+5. 回收站将真实大小统一标为“含估算”：新增回收站实测数量统计，标题与删除确认按实际覆盖情况标识。
+
+## 设备验证边界
+
+本轮没有连接物理设备。Android 真机的大图库、后台调度与电量行为仍需验收；Windows 环境也未完成 iOS 编译、Photos 权限和 iCloud 原件路径验证。

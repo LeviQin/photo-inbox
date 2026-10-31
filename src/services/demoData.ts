@@ -1,13 +1,11 @@
 import { buildSearchText } from '@/services/aiService';
-import type { PhotoCategory, PhotoRecord } from '@/types/photo';
-
-const categories: PhotoCategory[] = ['travel', 'food', 'portrait', 'screenshot', 'pet', 'other'];
+import type { PhotoRecord } from '@/types/photo';
 
 export function createDemoPhotos(count = 36): PhotoRecord[] {
   const now = Date.now();
   return Array.from({ length: count }, (_, index) => {
-    const category = categories[index % categories.length]!;
-    const filename = `${category}-${String(index + 1).padStart(3, '0')}.jpg`;
+    const category = 'other';
+    const filename = `demo-${String(index + 1).padStart(3, '0')}.jpg`;
     const width = index % 4 === 0 ? 1170 : 3024;
     const height = index % 4 === 0 ? 2532 : 4032;
     return {
@@ -23,8 +21,14 @@ export function createDemoPhotos(count = 36): PhotoRecord[] {
       status: 'active',
       favorite: index % 9 === 0,
       aiScore: 70 + ((index * 7) % 27),
+      visualHash: null,
+      averageColor: null,
+      exactHash: null,
+      actualBytes: null,
+      analysisVersion: 0,
       estimatedBytes: Math.round(width * height * 0.18),
-      searchText: buildSearchText(filename, category)
+      searchText: buildSearchText(filename, category),
+      aiDescription: null
     };
   });
 }

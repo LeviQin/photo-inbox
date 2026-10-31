@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["ExpoPhotoOcrModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.photoocr.ExpoPhotoOcrModule"]
+  }
+}

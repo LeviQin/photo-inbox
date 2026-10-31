@@ -7,12 +7,9 @@ export function formatBytes(bytes: number): string {
 }
 
 export function formatDate(timestamp: number): string {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return '日期未知';
   const date = new Date(timestamp);
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
+  return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
 }
 
 export function estimatePhotoBytes(width: number, height: number): number {
